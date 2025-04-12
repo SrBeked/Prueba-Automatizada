@@ -1,0 +1,32 @@
+{
+  "name": "prueba-automatizada",
+  "version": "1.0.0",
+  "description": "Este proyecto es una pag web el cual se le estarán pruebas automatizadas con Selenium",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "mocha test/*.spec.js --reporter mochawesome"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SrBeked/Prueba-Automatizada.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/SrBeked/Prueba-Automatizada/issues"
+  },
+  "homepage": "https://github.com/SrBeked/Prueba-Automatizada#readme",
+  "dependencies": {
+    "chai": "^5.2.0",
+    "chromedriver": "^135.0.1",
+    "ejs": "^3.1.10",
+    "express": "^5.1.0",
+    "mocha": "^11.1.0",
+    "mochawesome": "^7.1.3",
+    "selenium-webdriver": "^4.31.0"
+  }
+}

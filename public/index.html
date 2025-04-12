@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Mi Aplicación Web</title>
+  <link rel="stylesheet" href="./css/styles.css" />
+</head>
+<body>
+  <h1>Bienvenido a Mi Aplicación</h1>
+
+  <!-- Mensajes de respuesta -->
+  <div id="mensaje-respuesta" style="color: green; margin: 15px 0;"></div>
+  <div id="mensaje-error" style="color: red; margin: 15px 0;"></div>
+
+  <section>
+    <h2>Iniciar Sesión</h2>
+    <form action="/login" method="POST">
+      <label for="login-username">Usuario: </label>
+      <input type="text" id="login-username" name="username" required />
+      <br />
+      <label for="login-password">Contraseña: </label>
+      <input type="password" id="login-password" name="password" required />
+      <br />
+      <button type="submit">Iniciar Sesión</button>
+    </form>
+  </section>
+
+  <section>
+    <h2>Registro</h2>
+    <form action="/register" method="POST">
+      <label for="register-username">Usuario: </label>
+      <input type="text" id="register-username" name="username" required />
+      <br />
+      <label for="register-email">Correo: </label>
+      <input type="email" id="register-email" name="email" required />
+      <br />
+      <label for="register-password">Contraseña: </label>
+      <input type="password" id="register-password" name="password" required />
+      <br />
+      <button type="submit">Registrarse</button>
+    </form>
+  </section>
+
+  <script>
+    document.querySelectorAll('form').forEach(form => {
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const respuestaDiv = document.getElementById('mensaje-respuesta');
+        const errorDiv = document.getElementById('mensaje-error');
+        respuestaDiv.textContent = '';
+        errorDiv.textContent = '';
+  
+        try {
+          const response = await fetch(form.action, {
+            method: 'POST',
+            body: new URLSearchParams(new FormData(form)),
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+          });
+          const result = await response.text();
+          
+          if (response.ok) {
+            respuestaDiv.textContent = result;
+          } else {
+            errorDiv.textContent = result;
+          }
+        } catch (error) {
+          errorDiv.textContent = 'Error de conexión';
+        }
+      });
+    });
+  </script>
+</body>
+</html>
