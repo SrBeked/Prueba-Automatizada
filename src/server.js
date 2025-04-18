@@ -1,11 +1,9 @@
-// server.js (actualizado para HU-06 a HU-10 con endpoint /health)
 const express = require('express');
 const path = require('path');
 const session = require('express-session');
 const app = express();
 const port = 3000;
 
-// Datos en memoria
 const users = [
   { username: 'usuario', email: 'usuario@example.com', password: '1234' }
 ];
@@ -25,7 +23,6 @@ app.get('/', (req, res) => {
   res.sendFile(htmlPath);
 });
 
-// 🟢 HU-01 y HU-07: Registro de usuario con validación de duplicado
 app.post('/register', (req, res) => {
   const { username, email, password } = req.body;
   if (!username || !email || !password) {
@@ -50,7 +47,6 @@ app.post('/register', (req, res) => {
   `);
 });
 
-// 🟢 HU-02, HU-06, HU-09: Inicio de sesión con redirección y errores claros
 app.post('/login', (req, res) => {
   const { username, password } = req.body;
   if (!username || !password) {
@@ -76,10 +72,9 @@ app.post('/login', (req, res) => {
   }
 
   req.session.user = user;
-  res.redirect('/welcome'); // 🟢 HU-06
+  res.redirect('/welcome');
 });
 
-// 🟢 HU-10: Mostrar nombre y correo correctamente identificados por ID
 app.get('/welcome', (req, res) => {
   if (!req.session.user) {
     return res.redirect('/');
@@ -107,7 +102,6 @@ app.get('/welcome', (req, res) => {
   `);
 });
 
-// 🟢 HU-08: Botón de cerrar sesión correctamente
 app.post('/logout', (req, res) => {
   req.session.destroy(() => {
     res.send(`
@@ -117,7 +111,6 @@ app.post('/logout', (req, res) => {
   });
 });
 
-// ✅ Endpoint de salud (verificación del servidor)
 app.get('/health', (req, res) => {
   res.status(200).send("Servidor funcionando correctamente");
 });

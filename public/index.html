@@ -8,7 +8,6 @@
 <body>
   <h1>Bienvenido a Mi Aplicación</h1>
 
-  <!-- Mensajes de respuesta -->
   <div id="mensaje-respuesta" style="color: green; margin: 15px 0;"></div>
   <div id="mensaje-error" style="color: red; margin: 15px 0;"></div>
 
@@ -66,7 +65,6 @@
           respuestaDiv.innerHTML = "";
           errorDiv.innerHTML = "";
   
-          // ✅ Redirección manual si login fue exitoso (HU-06)
           if (form.action.endsWith("/login") && response.redirected) {
             window.location.href = response.url;
           } else if (response.ok) {
