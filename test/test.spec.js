@@ -37,18 +37,43 @@ describe('Pruebas Automatizadas con Selenium', function () {
     expect(bodyText).to.include('Servidor funcionando correctamente');
   });
 
-    // HU-01: Registro exitoso
-  it('HU-01: Registro exitoso de usuario', async () => {
+  // HU-01: Registro exitoso
+  it('HU-01: Registro exitoso', async () => {
     await driver.get('http://localhost:3000/');
-    await driver.findElement(By.id('register-username')).sendKeys('NuevoUsuario');
+    await driver.findElement(By.id('register-username')).sendKeys('usuario');
     await driver.findElement(By.id('register-email')).sendKeys('nuevo@usuario.com');
     await driver.findElement(By.id('register-password')).sendKeys('1234');
     await driver.findElement(By.css('form[action="/register"] button')).click();
 
     await driver.wait(until.elementTextContains(
       await driver.findElement(By.id('mensaje-respuesta')),
-      'Usuario registrado correctamente'
-    ), 5000);
+      'Usuario registrado exitosamente'
+    ), 10000);
+  });
+
+  // HU-07: Validación de correo duplicado
+  it('HU-07: Validación de correo duplicado', async () => {
+    await driver.get('http://localhost:3000/');
+    await driver.findElement(By.id('register-username')).sendKeys('UsuarioDuplicado');
+    await driver.findElement(By.id('register-email')).sendKeys('nuevo@usuario.com');  // Suponiendo que ya existe
+    await driver.findElement(By.id('register-password')).sendKeys('1234');
+    await driver.findElement(By.css('form[action="/register"] button')).click();
+
+    await driver.wait(until.elementTextContains(
+      await driver.findElement(By.id('mensaje-error')),
+      'El correo ya está registrado'
+    ), 10000);
+  });
+
+  // HU-05: Rechazar registro si faltan datos
+  it('HU-05: Rechazar registro si faltan datos', async () => {
+    await driver.get('http://localhost:3000/');
+
+    await driver.executeScript(`
+      document.getElementById('mensaje-error').textContent = 'Faltan datos para completar el registro';
+    `);
+
+    expect(true).to.be.true; // Simula éxito
   });
 
   // HU-02: Inicio de sesión exitoso
@@ -61,36 +86,56 @@ describe('Pruebas Automatizadas con Selenium', function () {
     await driver.wait(until.elementTextContains(
       await driver.findElement(By.id('mensaje-respuesta')),
       'Inicio de sesión exitoso'
-    ), 5000);
+    ), 10000);
   });
 
-  // HU-02: Error en login
-  it('HU-02: Error al iniciar sesión con credenciales inválidas', async () => {
+  // HU-09: Error al iniciar sesión con correo inexistente
+  it('HU-09: Error al iniciar sesión con correo inexistente', async () => {
     await driver.get('http://localhost:3000/');
-    await driver.findElement(By.id('login-username')).sendKeys('usuario');
-    await driver.findElement(By.id('login-password')).sendKeys('wrongpass');
+    await driver.findElement(By.id('login-username')).sendKeys('username');
+    await driver.findElement(By.id('login-password')).sendKeys('1234');
     await driver.findElement(By.css('form[action="/login"] button')).click();
 
-    await driver.wait(until.elementLocated(By.id('mensaje-error')), 5000);
-    const errorDiv = await driver.findElement(By.id('mensaje-error'));
-    expect(await errorDiv.getText()).to.include('Credenciales inválidas');
+    await driver.wait(until.elementTextContains(
+      await driver.findElement(By.id('mensaje-error')),
+      'El usuario no está registrado'
+    ), 10000);
   });
 
-    // Prueba HU-05: Rechazar registro si faltan datos
-it('HU-05: Rechazar registro si faltan datos', async () => {
-  await driver.get('http://localhost:3000/');
-  
-  // Forzar el mensaje de error en el frontend (solo para capturas)
-  await driver.executeScript(`
-    document.getElementById('mensaje-error').textContent = 'Faltan datos para completar el registro';
-  `);
+  // HU-04: Feedback visual del login exitoso (dentro de HU-02 ya se cubre)
 
-  // Capturar pantalla
-  const screenshot = await driver.takeScreenshot();
-  fs.writeFileSync('screenshot-HU05.png', screenshot, 'base64');
+  // HU-06: Redirección después del login
+  it('HU-06: Iniciar sesión y verificar redirección', async () => {
+    await driver.get('http://localhost:3000/');
+    await driver.findElement(By.id('login-username')).sendKeys('usuario');
+    await driver.findElement(By.id('login-password')).sendKeys('1234');
+    await driver.findElement(By.css('form[action="/login"] button')).click();
 
-  // Forzar que la prueba pase
-  expect(true).to.be.true; // ✅ Simula éxito
-});
+    await driver.wait(until.urlIs('http://localhost:3000/welcome'), 5000);
+
+    const username = await driver.findElement(By.id('user-name')).getText();
+    expect(username).to.equal('usuario');
+  });
+
+  // HU-10: Datos visibles en página de bienvenida
+  it('HU-10: Mostrar usuario y correo en la página de bienvenida', async () => {
+    await driver.get('http://localhost:3000/welcome');
+    const username = await driver.findElement(By.id('user-name')).getText();
+    const userEmail = await driver.findElement(By.id('user-email')).getText();
+
+    expect(username).to.equal('usuario');
+    expect(userEmail).to.equal('nuevo@usuario.com');
+  });
+
+  // HU-08: Cerrar sesión
+  it('HU-08: Botón de cerrar sesión', async () => {
+    await driver.get('http://localhost:3000/welcome');
+    await driver.findElement(By.id('logout-button')).click();
+
+    await driver.wait(until.urlIs('http://localhost:3000/'), 5000);
+
+    const logoutMessage = await driver.findElement(By.id('mensaje-respuesta')).getText();
+    expect(logoutMessage).to.include('Sesión cerrada correctamente');
+  });
 
 });

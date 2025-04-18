@@ -42,32 +42,41 @@
   </section>
 
   <script>
-    document.querySelectorAll('form').forEach(form => {
-      form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const respuestaDiv = document.getElementById('mensaje-respuesta');
-        const errorDiv = document.getElementById('mensaje-error');
-        respuestaDiv.textContent = '';
-        errorDiv.textContent = '';
+    document.addEventListener("DOMContentLoaded", function () {
+      const forms = document.querySelectorAll("form");
+      const respuestaDiv = document.getElementById("mensaje-respuesta");
+      const errorDiv = document.getElementById("mensaje-error");
   
-        try {
+      forms.forEach(form => {
+        form.addEventListener("submit", async function (e) {
+          e.preventDefault();
+  
+          const formData = new FormData(form);
+          const data = Object.fromEntries(formData.entries());
+  
           const response = await fetch(form.action, {
-            method: 'POST',
-            body: new URLSearchParams(new FormData(form)),
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+            method: form.method,
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify(data)
           });
+  
           const result = await response.text();
-          
-          if (response.ok) {
-            respuestaDiv.textContent = result;
+          respuestaDiv.innerHTML = "";
+          errorDiv.innerHTML = "";
+  
+          // ✅ Redirección manual si login fue exitoso (HU-06)
+          if (form.action.endsWith("/login") && response.redirected) {
+            window.location.href = response.url;
+          } else if (response.ok) {
+            respuestaDiv.innerHTML = result;
           } else {
-            errorDiv.textContent = result;
+            errorDiv.innerHTML = result;
           }
-        } catch (error) {
-          errorDiv.textContent = 'Error de conexión';
-        }
+        });
       });
     });
-  </script>
+  </script>  
 </body>
 </html>
